@@ -103,6 +103,7 @@ def run(a):
     try: ports=sorted(set(int(x.strip()) for x in a.ports.split(","))) if a.ports else []
     except ValueError as exc: raise ValueError("ports must be comma-separated integers") from exc
     if len(ports)>32 or any(p<1 or p>65535 for p in ports): raise ValueError("choose up to 32 TCP ports in range 1-65535")
+    started = datetime.now(timezone.utc)
     names,errors=discover(domain,a.timeout); names={n for n in names if in_scope(n,domain)}
     if len(names)>a.max_hosts: names=set(sorted(names)[:a.max_hosts]); errors.append("Host cap reached")
     hosts=[]
@@ -122,8 +123,10 @@ def run(a):
             futures=[pool.submit(scan_ports,h["host"],ports,a.timeout) for h in hosts if h["addresses"]]
             for f in as_completed(futures): tcp.extend(f.result())
         tcp.sort(key=lambda x:(x["host"],x["port"]))
+    completed = datetime.now(timezone.utc)
     return {"schema_version":"1.0","tool":"Recon Pipeline","tool_version":VERSION,
-      "run_id":datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ"),"started_at":datetime.now(timezone.utc).isoformat(),
+      "run_id":started.strftime("%Y%m%dT%H%M%S%fZ"),"started_at":started.isoformat(),
+      "completed_at":completed.isoformat(),"duration_seconds":round((completed-started).total_seconds(),3),
       "scope":{"root_domain":domain,"policy":"root and dot-delimited subdomains only","authorization_acknowledged":True},
       "methods":["passive Certificate Transparency","DNS resolution"]+([] if a.no_http else ["HTTP(S) probe"])+(["explicit TCP ports"] if ports else []),
       "summary":{"names_discovered":len(names),"dns_resolved_hosts":sum(bool(h["addresses"]) for h in hosts),
