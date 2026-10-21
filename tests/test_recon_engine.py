@@ -88,4 +88,8 @@ class ExecutionTests(unittest.TestCase):
             self.assertEqual(json.loads((out / "report.json").read_text())["scope"]["root_domain"], "example.com")
             self.assertIn("# Reconnaissance Report", (out / "report.md").read_text())
             self.assertEqual((out / "run.log").read_text(), "")
+            manifest = json.loads((out / "manifest.json").read_text())
+            self.assertEqual(manifest["manifest_schema_version"], "1.0")
+            self.assertEqual({item["path"] for item in manifest["artifacts"]},
+                             {"report.json", "report.md", "run.log"})
 
