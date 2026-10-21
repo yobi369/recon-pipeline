@@ -88,6 +88,10 @@ def markdown(r):
       "- Duration seconds: "+str(r["duration_seconds"]),"- Tool version: "+VERSION,
       "- Authorization acknowledgement recorded; permission is not independently verified.","",
       "## Summary",""]+[f"- {k.replace('_',' ').title()}: {v}" for k,v in s.items()]
+    lines += ["","## Collection configuration",""]
+    lines += [f"- {k.replace('_',' ').title()}: {v}" for k,v in r["collection_config"].items()]
+    lines += ["","## Source provenance",""]
+    lines += [f"- **{item['method']}** — {item['source']}. {item['trust_note']}" for item in r["source_provenance"]]
     lines += ["","## Hosts","","| Host | Addresses | HTTP status |","|---|---|---|"]
     for h in r["hosts"]:
         statuses=", ".join(p["url"]+" -> "+str(p["status"] or "no response") for p in h["http"])
