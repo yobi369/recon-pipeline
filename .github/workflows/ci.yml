@@ -20,8 +20,10 @@ jobs:
           python-version: "3.12"
       - name: Compile Python
         run: python -m py_compile recon_engine.py recon_pipeline.py recon_compare.py recon_verify.py recon_scope.py tests/test_recon_scope.py tests/test_recon_engine.py tests/test_recon_compare.py tests/test_recon_verify.py
-      - name: Validate shell syntax
-        run: bash -n recon_pipeline.sh installer_script.sh
+      - name: Validate shell syntax and example scope manifest
+        run: |
+          bash -n recon_pipeline.sh installer_script.sh
+          python -m json.tool scope.example.json > /dev/null
       - name: Run local installer checks
         run: bash installer_script.sh
       - name: Unit tests
