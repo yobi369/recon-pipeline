@@ -82,6 +82,7 @@ def scan_ports(host, ports, timeout):
 def markdown(r):
     s=r["summary"]; lines=["# Reconnaissance Report: "+r["scope"]["root_domain"],"",
       "- Engagement: "+str(r["scope"].get("engagement_id") or "operator-acknowledged scope"),
+      "- Authorization reference: "+str(r["scope"].get("authorization_reference") or "not supplied"),
       "- Scope expires UTC: "+str(r["scope"].get("expires_at") or "not specified"),
       "- Started UTC: "+r["started_at"],"- Completed UTC: "+r["completed_at"],
       "- Duration seconds: "+str(r["duration_seconds"]),"- Tool version: "+VERSION,
