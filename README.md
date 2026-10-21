@@ -29,6 +29,16 @@ python3 recon_engine.py example.com --authorized --ports 22,80,443,8080 --output
 
 Options include `--max-hosts 100`, `--workers 5` (maximum 10), `--timeout 4`, `--no-http`, and `--version`. Outputs: `report.json`, `report.md`, and `run.log`.
 
+## Time-bounded engagement scope
+
+For a real engagement, create a scope manifest from `scope.example.json`, replace the example engagement and authorization reference, set an expiry time, and list only assets covered by written permission. The engine refuses an expired manifest and requires the command-line `--authorized` acknowledgement as a second operator check.
+
+```bash
+python3 recon_engine.py example.com --authorized --scope-file scope.example.json --output-dir results
+```
+
+When `allowed_hosts` is non-empty, discovery is restricted to those names and their subdomains. `excluded_hosts` excludes each listed name and its subdomains. Every manifest hostname must fall within `root_domain`; the report records the scope-manifest SHA-256 and authorization reference. This is an enforcement aid, not independent verification of the underlying permission.
+
 ## Historical evidence comparison
 
 Recon Pipeline can compare two saved JSON reports from the same root-domain scope. This helps teams identify observed inventory, DNS, HTTP-status, and explicitly tested TCP-state changes over time without presenting ordinary changes as vulnerability findings.
