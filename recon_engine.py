@@ -145,6 +145,18 @@ def run(a):
       "run_id":started.strftime("%Y%m%dT%H%M%S%fZ"),"started_at":started.isoformat(),
       "completed_at":completed.isoformat(),"duration_seconds":round((completed-started).total_seconds(),3),
       "scope":scope_details,
+      "collection_config":{"workers":a.workers,"max_hosts":a.max_hosts,"timeout_seconds":a.timeout,
+        "http_enabled":not a.no_http,"requested_tcp_ports":ports},
+      "source_provenance":[
+        {"method":"passive_certificate_transparency","source":"crt.sh Certificate Transparency search",
+         "query_pattern":"%.<root_domain>","trust_note":"Third-party passive observations may be incomplete or stale."},
+        {"method":"dns_resolution","source":"system resolver via socket.getaddrinfo",
+         "trust_note":"Results reflect this machine's configured resolver and collection time."}
+      ]+([] if a.no_http else [{"method":"http_probe","source":"HTTP and HTTPS root paths on resolved in-scope hosts",
+        "tls_certificate_verification":True,"redirects_followed":False,"paths_probed":["/"],
+        "trust_note":"Status codes and headers are observations, not vulnerability confirmation."}])
+       +([{"method":"tcp_connect","source":"explicit TCP connection attempts",
+          "ports":ports,"trust_note":"Connection results do not identify services or prove vulnerabilities."}] if ports else []),
       "methods":["passive Certificate Transparency","DNS resolution"]+([] if a.no_http else ["HTTP(S) probe"])+(["explicit TCP ports"] if ports else []),
       "summary":{"names_discovered":len(names),"dns_resolved_hosts":sum(bool(h["addresses"]) for h in hosts),
         "hosts_with_http_response":sum(any(p["status"] is not None for p in h["http"]) for h in hosts),
