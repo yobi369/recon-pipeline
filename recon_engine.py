@@ -100,7 +100,7 @@ def markdown(r):
 def run(a):
     if not a.authorized: raise ValueError("explicit authorization acknowledgement required; use --authorized only when permitted")
     domain=normalize_domain(a.target)
-    scope_details={"root_domain":domain,"engagement_id":None,"expires_at":None,
+    scope_details={"root_domain":domain,"engagement_id":None,"authorization_reference":None,"expires_at":None,
       "allowed_hosts":[],"excluded_hosts":[],"scope_file_sha256":None,
       "policy":"root and dot-delimited subdomains only","authorization_acknowledged":True}
     scope_file=getattr(a,"scope_file",None)
