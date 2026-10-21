@@ -49,7 +49,7 @@ class CompareTests(unittest.TestCase):
             "http_observation_changed", "tcp_observation_changed"
         }.issubset(categories))
         self.assertEqual(result["baseline"]["sha256"], "a" * 64)
-        self.assertTrue(any("not vulnerability" in c for c in result["caveats"]))
+        self.assertTrue(any("not confirmed" in c for c in result["caveats"]))
 
     def test_no_deltas_for_equal_observations(self):
         one = report()
