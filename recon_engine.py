@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Scope-first reconnaissance for authorized security assessments. Python 3.10+."""
-import argparse, json, re, socket, ssl, sys, time, urllib.error, urllib.parse, urllib.request
+import argparse, hashlib, json, re, socket, ssl, sys, time, urllib.error, urllib.parse, urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from pathlib import Path
@@ -148,6 +148,20 @@ def main(argv=None):
         (out/"report.json").write_text(json.dumps(r,indent=2,sort_keys=True)+"\n",encoding="utf-8")
         (out/"report.md").write_text(markdown(r),encoding="utf-8")
         (out/"run.log").write_text("\n".join(r["errors"])+"\n" if r["errors"] else "",encoding="utf-8")
-        print("Reports written to "+str(out)); print(json.dumps(r["summary"],indent=2)); return 0
+        artifacts = []
+        for filename, media_type in (("report.json", "application/json"),
+                                     ("report.md", "text/markdown"),
+                                     ("run.log", "text/plain")):
+            raw = (out/filename).read_bytes()
+            artifacts.append({"path": filename, "bytes": len(raw),
+                              "sha256": hashlib.sha256(raw).hexdigest(),
+                              "media_type": media_type})
+        manifest = {"manifest_schema_version": "1.0", "tool": "Recon Pipeline",
+                    "tool_version": VERSION, "run_id": r["run_id"],
+                    "generated_at": datetime.now(timezone.utc).isoformat(),
+                    "root_domain": r["scope"]["root_domain"], "artifacts": artifacts,
+                    "integrity_note": "SHA-256 detects changes against this manifest; it is not a digital signature or proof of source authenticity."}
+        (out/"manifest.json").write_text(json.dumps(manifest, indent=2, sort_keys=True)+"\n", encoding="utf-8")
+        print("Reports and integrity manifest written to "+str(out)); print(json.dumps(r["summary"],indent=2)); return 0
     except (ValueError,OSError) as exc: print("error: "+str(exc),file=sys.stderr); return 2
 if __name__=="__main__": raise SystemExit(main())
