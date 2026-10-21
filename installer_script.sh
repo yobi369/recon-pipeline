@@ -13,7 +13,8 @@ if sys.version_info < (3, 10):
     raise SystemExit("Error: Python 3.10 or newer is required.")
 print("Python", sys.version.split()[0], "is supported.")
 PY
-"$PYTHON" -m py_compile "$SCRIPT_DIR/recon_engine.py" "$SCRIPT_DIR/recon_pipeline.py"
+"$PYTHON" -m py_compile "$SCRIPT_DIR/recon_engine.py" "$SCRIPT_DIR/recon_pipeline.py" "$SCRIPT_DIR/recon_scope.py" "$SCRIPT_DIR/recon_compare.py" "$SCRIPT_DIR/recon_verify.py"
 printf "\nSetup verified. No external packages are required.\n"
 printf "Run: python3 %s/recon_engine.py example.com --authorized\n" "$SCRIPT_DIR"
+printf "For scoped engagements, copy and edit scope.example.json, then pass --scope-file.\n"
 printf "Only use --authorized for a target you have permission to assess.\n"
