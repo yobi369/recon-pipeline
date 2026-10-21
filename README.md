@@ -18,7 +18,7 @@ Compatibility launchers are also available:
 
 ```bash
 python3 recon_pipeline.py example.com --authorized
-./recon_pipeline.sh example.com --authorized
+bash recon_pipeline.sh example.com --authorized
 ```
 
 Optional explicit TCP checks:
@@ -43,7 +43,7 @@ Options include `--max-hosts 100`, `--workers 5` (maximum 10), `--timeout 4`, `-
 ## Setup and tests
 
 ```bash
-./installer_script.sh
+bash installer_script.sh
 python3 -m unittest discover -s tests -v
 ```
 
