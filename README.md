@@ -27,7 +27,7 @@ Optional explicit TCP checks:
 python3 recon_engine.py example.com --authorized --ports 22,80,443,8080 --output-dir results
 ```
 
-Options include `--max-hosts 100`, `--workers 5` (maximum 10), `--timeout 4`, `--no-http`, and `--version`. Outputs: `report.json`, `report.md`, and `run.log`.
+Options include `--max-hosts 100`, `--workers 5` (maximum 10), `--timeout 4`, `--no-http`, and `--version`. Outputs: `report.json`, `report.md`, `run.log`, and `manifest.json` (artifact integrity hashes). Reports record collection configuration, source provenance, start/end times, and elapsed duration.
 
 ## Time-bounded engagement scope
 
@@ -37,7 +37,7 @@ For a real engagement, create a scope manifest from `scope.example.json`, replac
 python3 recon_engine.py example.com --authorized --scope-file scope.example.json --output-dir results
 ```
 
-When `allowed_hosts` is non-empty, discovery is restricted to those names and their subdomains. `excluded_hosts` excludes each listed name and its subdomains. Every manifest hostname must fall within `root_domain`; the report records the scope-manifest SHA-256 and authorization reference. This is an enforcement aid, not independent verification of the underlying permission.
+When `allowed_hosts` is non-empty, each listed name is allowed; subdomains are included for non-root entries, while listing `root_domain` permits only the root itself. `excluded_hosts` excludes each listed name and its subdomains. Every manifest hostname must fall within `root_domain`; the report records the scope-manifest SHA-256 and authorization reference. This is an enforcement aid, not independent verification of the underlying permission.
 
 ## Historical evidence comparison
 
