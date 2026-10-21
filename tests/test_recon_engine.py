@@ -48,6 +48,10 @@ class ExecutionTests(unittest.TestCase):
         self.assertEqual([h["host"] for h in report["hosts"]], ["api.example.com", "example.com"])
         self.assertEqual(report["scope"]["root_domain"], "example.com")
         self.assertEqual(report["summary"]["names_discovered"], 2)
+        self.assertIn("started_at", report)
+        self.assertIn("completed_at", report)
+        self.assertGreaterEqual(report["duration_seconds"], 0)
+        self.assertEqual(len(report["run_id"]), 22)
         discover.assert_called_once_with("example.com", 1.0)
 
     @unittest.mock.patch("recon_engine.discover")
