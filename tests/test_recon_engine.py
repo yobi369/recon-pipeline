@@ -1,5 +1,6 @@
 import argparse
 import unittest
+from unittest import mock
 import recon_engine as recon
 
 class ScopeTests(unittest.TestCase):
@@ -35,7 +36,7 @@ class ExecutionTests(unittest.TestCase):
         values.update(overrides)
         return argparse.Namespace(**values)
 
-    @unittest.mock.patch("recon_engine.resolve")
+    @mock.patch("recon_engine.resolve")
     @unittest.mock.patch("recon_engine.discover")
     def test_run_filters_out_of_scope_discovery(self, discover, resolve):
         discover.return_value = ({"example.com", "api.example.com", "example.com.attacker.test"}, [])
