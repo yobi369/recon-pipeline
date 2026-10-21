@@ -22,7 +22,9 @@ def load_scope(path: Path, target: str, now: datetime | None = None) -> dict[str
     engagement_id = data.get("engagement_id")
     if not isinstance(engagement_id, str) or not engagement_id.strip() or len(engagement_id) > 128:
         raise ValueError("scope file requires a non-empty engagement_id (max 128 characters)")
-    root = recon_engine.normalize_domain(data.get("root_domain", ""))
+    if not isinstance(data.get("root_domain"), str):
+        raise ValueError("scope file requires a root_domain string")
+    root = recon_engine.normalize_domain(data["root_domain"])
     if recon_engine.normalize_domain(target) != root:
         raise ValueError("target must match root_domain in the scope file")
     authorization_reference = data.get("authorization_reference")
@@ -52,7 +54,6 @@ def load_scope(path: Path, target: str, now: datetime | None = None) -> dict[str
         "allowed_hosts": sorted(set(allowed)),
         "excluded_hosts": sorted(set(excluded)),
         "scope_file_sha256": hashlib.sha256(raw).hexdigest(),
-        "source": str(path),
     }
 
 
