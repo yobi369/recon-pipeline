@@ -42,7 +42,7 @@ python3 recon_engine.py example.com --authorized --output-dir runs/2026-10-21
 python3 recon_compare.py runs/2026-10-20/report.json runs/2026-10-21/report.json --output-dir comparison
 ```
 
-The comparison writes `comparison.json` and `comparison.md`. It records SHA-256 hashes of the exact input report bytes so a reviewer can identify which evidence files were compared. Host absence is described as "not observed", not proof that an asset was removed. Reports with collection errors are flagged as incomplete. Compare runs collected with equivalent scope and configuration.
+The comparison writes `comparison.json` and `comparison.md`. It records SHA-256 hashes of the exact input report bytes so a reviewer can identify which evidence files were compared. Every reconnaissance run also writes `manifest.json`, containing byte counts and SHA-256 hashes for its JSON, Markdown, and log artifacts. Verify those files with `python3 recon_verify.py runs/2026-10-21/manifest.json`. This detects accidental or post-collection changes relative to the manifest; it is not a digital signature or proof of who created the report. Host absence is described as "not observed", not proof that an asset was removed. Reports with collection errors are flagged as incomplete. Compare runs collected with equivalent scope and configuration.
 
 ## Safety model
 
