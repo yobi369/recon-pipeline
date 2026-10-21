@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0",
+  "engagement_id": "replace-with-engagement-id",
+  "authorization_reference": "replace-with-contract-or-ticket-reference",
+  "root_domain": "example.com",
+  "expires_at": "2027-01-01T00:00:00Z",
+  "allowed_hosts": [
+    "example.com",
+    "api.example.com"
+  ],
+  "excluded_hosts": [
+    "admin.example.com"
+  ]
+}
