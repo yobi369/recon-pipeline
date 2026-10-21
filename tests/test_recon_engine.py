@@ -54,6 +54,35 @@ class ExecutionTests(unittest.TestCase):
         self.assertEqual(len(report["run_id"]), 22)
         discover.assert_called_once_with("example.com", 1.0)
 
+    @mock.patch("recon_engine.resolve")
+    @mock.patch("recon_engine.discover")
+    def test_scope_manifest_filters_hosts_before_resolution(self, discover, resolve):
+        import json
+        import tempfile
+        from pathlib import Path
+        scope_data = {
+            "schema_version": "1.0", "engagement_id": "ENG-TEST",
+            "authorization_reference": "ROE-TEST", "root_domain": "example.com",
+            "expires_at": "2099-01-01T00:00:00Z",
+            "allowed_hosts": ["example.com", "api.example.com"],
+            "excluded_hosts": ["admin.example.com"],
+        }
+        discover.return_value = ({"example.com", "api.example.com", "www.example.com",
+                                  "admin.example.com", "example.com.attacker.test"}, [])
+        resolve.side_effect = lambda host: {
+            "host": host, "addresses": ["192.0.2.10"], "dns_resolved": True,
+            "dns_errors": [], "http": [], "elapsed_ms": 0,
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            scope_path = Path(directory) / "scope.json"
+            scope_path.write_text(json.dumps(scope_data), encoding="utf-8")
+            result = recon.run(self.args(scope_file=scope_path))
+        self.assertEqual([h["host"] for h in result["hosts"]], ["api.example.com", "example.com"])
+        self.assertEqual(result["scope"]["engagement_id"], "ENG-TEST")
+        self.assertEqual(result["scope"]["authorization_reference"], "ROE-TEST")
+        self.assertEqual(len(result["scope"]["scope_file_sha256"]), 64)
+        self.assertEqual(resolve.call_count, 2)
+
     @unittest.mock.patch("recon_engine.discover")
     def test_invalid_ports_fail_before_discovery(self, discover):
         with self.assertRaisesRegex(ValueError, "ports must be comma-separated integers"):
