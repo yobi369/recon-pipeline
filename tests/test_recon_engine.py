@@ -73,7 +73,8 @@ class ExecutionTests(unittest.TestCase):
         from pathlib import Path
         fixture = {
             "schema_version": "1.0", "tool": "Recon Pipeline", "tool_version": recon.VERSION,
-            "run_id": "20261021T000000Z", "started_at": "2026-10-21T00:00:00+00:00",
+            "run_id": "20261021T000000000000Z", "started_at": "2026-10-21T00:00:00+00:00",
+            "completed_at": "2026-10-21T00:00:01+00:00", "duration_seconds": 1.0,
             "scope": {"root_domain": "example.com", "authorization_acknowledged": True},
             "summary": {"names_discovered": 1, "dns_resolved_hosts": 1,
                         "hosts_with_http_response": 0, "tcp_ports_open": 0, "errors": 0},
