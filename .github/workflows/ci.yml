@@ -23,7 +23,7 @@ jobs:
       - name: Validate shell syntax
         run: bash -n recon_pipeline.sh installer_script.sh
       - name: Run local installer checks
-        run: ./installer_script.sh
+        run: bash installer_script.sh
       - name: Unit tests
         run: python -m unittest discover -s tests -v
       - name: CLI smoke tests
