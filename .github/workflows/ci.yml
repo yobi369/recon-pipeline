@@ -19,7 +19,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Compile Python
-        run: python -m py_compile recon_engine.py recon_pipeline.py tests/test_recon_engine.py
+        run: python -m py_compile recon_engine.py recon_pipeline.py recon_compare.py tests/test_recon_engine.py tests/test_recon_compare.py
       - name: Validate shell syntax
         run: bash -n recon_pipeline.sh installer_script.sh
       - name: Run local installer checks
@@ -31,3 +31,4 @@ jobs:
           python recon_engine.py --version
           python recon_engine.py --help
           python recon_pipeline.py --version
+          python recon_compare.py --help
