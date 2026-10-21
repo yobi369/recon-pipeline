@@ -79,6 +79,6 @@ def host_is_in_scope(host: str, scope: dict[str, Any]) -> bool:
            for excluded in scope.get("excluded_hosts", [])):
         return False
     allowed = scope.get("allowed_hosts", [])
-    if allowed and not any(host == item or host.endswith("." + item) for item in allowed):
+    if allowed and not any(host == item or (item != root and host.endswith("." + item)) for item in allowed):
         return False
     return True
