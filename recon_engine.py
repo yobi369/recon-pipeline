@@ -81,6 +81,8 @@ def scan_ports(host, ports, timeout):
 
 def markdown(r):
     s=r["summary"]; lines=["# Reconnaissance Report: "+r["scope"]["root_domain"],"",
+      "- Engagement: "+str(r["scope"].get("engagement_id") or "operator-acknowledged scope"),
+      "- Scope expires UTC: "+str(r["scope"].get("expires_at") or "not specified"),
       "- Started UTC: "+r["started_at"],"- Completed UTC: "+r["completed_at"],
       "- Duration seconds: "+str(r["duration_seconds"]),"- Tool version: "+VERSION,
       "- Authorization acknowledgement recorded; permission is not independently verified.","",
@@ -98,6 +100,15 @@ def markdown(r):
 def run(a):
     if not a.authorized: raise ValueError("explicit authorization acknowledgement required; use --authorized only when permitted")
     domain=normalize_domain(a.target)
+    scope_details={"root_domain":domain,"engagement_id":None,"expires_at":None,
+      "allowed_hosts":[],"excluded_hosts":[],"scope_file_sha256":None,
+      "policy":"root and dot-delimited subdomains only","authorization_acknowledged":True}
+    scope_file=getattr(a,"scope_file",None)
+    if scope_file:
+        import recon_scope
+        scope_details=recon_scope.load_scope(Path(scope_file),domain)
+        scope_details["policy"]="time-bounded engagement manifest; allowed/excluded host rules applied"
+        scope_details["authorization_acknowledged"]=True
     if not 1<=a.workers<=10: raise ValueError("workers must be 1-10")
     if not 1<=a.max_hosts<=1000: raise ValueError("max-hosts must be 1-1000")
     if not .5<=a.timeout<=30: raise ValueError("timeout must be 0.5-30 seconds")
@@ -105,7 +116,11 @@ def run(a):
     except ValueError as exc: raise ValueError("ports must be comma-separated integers") from exc
     if len(ports)>32 or any(p<1 or p>65535 for p in ports): raise ValueError("choose up to 32 TCP ports in range 1-65535")
     started = datetime.now(timezone.utc)
-    names,errors=discover(domain,a.timeout); names={n for n in names if in_scope(n,domain)}
+    names,errors=discover(domain,a.timeout)
+    if scope_file:
+        names={n for n in names if recon_scope.host_is_in_scope(n,scope_details)}
+    else:
+        names={n for n in names if in_scope(n,domain)}
     if len(names)>a.max_hosts: names=set(sorted(names)[:a.max_hosts]); errors.append("Host cap reached")
     hosts=[]
     with ThreadPoolExecutor(max_workers=a.workers) as pool:
@@ -128,7 +143,7 @@ def run(a):
     return {"schema_version":"1.0","tool":"Recon Pipeline","tool_version":VERSION,
       "run_id":started.strftime("%Y%m%dT%H%M%S%fZ"),"started_at":started.isoformat(),
       "completed_at":completed.isoformat(),"duration_seconds":round((completed-started).total_seconds(),3),
-      "scope":{"root_domain":domain,"policy":"root and dot-delimited subdomains only","authorization_acknowledged":True},
+      "scope":scope_details,
       "methods":["passive Certificate Transparency","DNS resolution"]+([] if a.no_http else ["HTTP(S) probe"])+(["explicit TCP ports"] if ports else []),
       "summary":{"names_discovered":len(names),"dns_resolved_hosts":sum(bool(h["addresses"]) for h in hosts),
         "hosts_with_http_response":sum(any(p["status"] is not None for p in h["http"]) for h in hosts),
@@ -140,6 +155,7 @@ def main(argv=None):
     p=argparse.ArgumentParser(description="Scope-first reconnaissance for authorized assessments.")
     p.add_argument("target"); p.add_argument("--authorized",action="store_true")
     p.add_argument("--output-dir",default="recon_output"); p.add_argument("--workers",type=int,default=5)
+    p.add_argument("--scope-file",type=Path,help="time-bounded JSON engagement scope manifest")
     p.add_argument("--max-hosts",type=int,default=100); p.add_argument("--timeout",type=float,default=4)
     p.add_argument("--ports",help="optional comma-separated TCP ports"); p.add_argument("--no-http",action="store_true")
     p.add_argument("--version",action="version",version="%(prog)s "+VERSION); a=p.parse_args(argv)
