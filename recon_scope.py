@@ -25,6 +25,9 @@ def load_scope(path: Path, target: str, now: datetime | None = None) -> dict[str
     root = recon_engine.normalize_domain(data.get("root_domain", ""))
     if recon_engine.normalize_domain(target) != root:
         raise ValueError("target must match root_domain in the scope file")
+    authorization_reference = data.get("authorization_reference")
+    if not isinstance(authorization_reference, str) or not authorization_reference.strip() or len(authorization_reference) > 256:
+        raise ValueError("scope file requires an authorization_reference (max 256 characters)")
     expires_raw = data.get("expires_at")
     if not isinstance(expires_raw, str):
         raise ValueError("scope file requires an expires_at timestamp with timezone")
@@ -44,6 +47,7 @@ def load_scope(path: Path, target: str, now: datetime | None = None) -> dict[str
     return {
         "root_domain": root,
         "engagement_id": engagement_id.strip(),
+        "authorization_reference": authorization_reference.strip(),
         "expires_at": expires.astimezone(timezone.utc).isoformat(),
         "allowed_hosts": sorted(set(allowed)),
         "excluded_hosts": sorted(set(excluded)),
