@@ -29,6 +29,21 @@ python3 recon_engine.py example.com --authorized --ports 22,80,443,8080 --output
 
 Options include `--max-hosts 100`, `--workers 5` (maximum 10), `--timeout 4`, `--no-http`, and `--version`. Outputs: `report.json`, `report.md`, and `run.log`.
 
+## Historical evidence comparison
+
+Recon Pipeline can compare two saved JSON reports from the same root-domain scope. This helps teams identify observed inventory, DNS, HTTP-status, and explicitly tested TCP-state changes over time without presenting ordinary changes as vulnerability findings.
+
+```bash
+# Capture each authorized run into a separate directory.
+python3 recon_engine.py example.com --authorized --output-dir runs/2026-10-20
+python3 recon_engine.py example.com --authorized --output-dir runs/2026-10-21
+
+# Compare the baseline and later observation.
+python3 recon_compare.py runs/2026-10-20/report.json runs/2026-10-21/report.json --output-dir comparison
+```
+
+The comparison writes `comparison.json` and `comparison.md`. It records SHA-256 hashes of the exact input report bytes so a reviewer can identify which evidence files were compared. Host absence is described as "not observed", not proof that an asset was removed. Reports with collection errors are flagged as incomplete. Compare runs collected with equivalent scope and configuration.
+
 ## Safety model
 
 - Validates domain input; rejects URLs and IP literals.
