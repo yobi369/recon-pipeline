@@ -81,7 +81,8 @@ def scan_ports(host, ports, timeout):
 
 def markdown(r):
     s=r["summary"]; lines=["# Reconnaissance Report: "+r["scope"]["root_domain"],"",
-      "- Started UTC: "+r["started_at"],"- Tool version: "+VERSION,
+      "- Started UTC: "+r["started_at"],"- Completed UTC: "+r["completed_at"],
+      "- Duration seconds: "+str(r["duration_seconds"]),"- Tool version: "+VERSION,
       "- Authorization acknowledgement recorded; permission is not independently verified.","",
       "## Summary",""]+[f"- {k.replace('_',' ').title()}: {v}" for k,v in s.items()]
     lines += ["","## Hosts","","| Host | Addresses | HTTP status |","|---|---|---|"]
